@@ -1,0 +1,34 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: var(--max-sheet-width);
+  margin: 0 auto;
+}
+
+.sheet-title {
+  margin: 0;
+  padding: 16px 16px 0;
+}
+
+.sheet-content {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 8px 16px 0;
+}
+
+.allergy-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px;
+}

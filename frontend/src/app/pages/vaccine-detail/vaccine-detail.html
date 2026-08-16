@@ -1,0 +1,53 @@
+@if (pet(); as pet) {
+@if (doses(); as doses) {
+<div class="vaccine-detail">
+    <app-breadcrumbs [crumbs]="crumbs()"></app-breadcrumbs>
+    <div class="vaccine-header">
+        <h1>{{vaccineName}}</h1>
+        <p class="dose-summary">{{doses.length}} dose{{doses.length === 1 ? '' : 's'}} on record</p>
+    </div>
+
+    <section class="record-section">
+        <div class="section-grid">
+            @for (dose of doses; track dose.vaccine.id) {
+            <mat-card appearance="outlined" class="entry-card">
+                <mat-card-header>
+                    <mat-card-title>{{dose.vaccine.administeredDate | date: 'mediumDate'}}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="facts">
+                        <div class="fact">
+                            <mat-icon>local_hospital</mat-icon>
+                            <span>{{dose.record.vetRecord?.officeName}}</span>
+                        </div>
+                        @if (dose.vaccine.nextDueDate) {
+                        <div class="fact">
+                            <mat-icon>event</mat-icon>
+                            <span>Next due {{dose.vaccine.nextDueDate | date: 'mediumDate'}}</span>
+                        </div>
+                        }
+                    </div>
+                    @if (dose.vaccine.notes) {
+                    <p class="section-notes">{{dose.vaccine.notes}}</p>
+                    }
+                    <a class="visit-link" [routerLink]="['/pets', petId, 'records', dose.record.id]">
+                        <mat-icon>event</mat-icon>
+                        View visit record
+                    </a>
+                </mat-card-content>
+                <mat-card-actions>
+                    <button matButton (click)="onDeleteVaccine(dose.vaccine)">Delete</button>
+                </mat-card-actions>
+            </mat-card>
+            } @empty {
+            <p class="empty-state">No doses found for this vaccine.</p>
+            }
+        </div>
+    </section>
+</div>
+} @else {
+<app-loading></app-loading>
+}
+} @else {
+<app-loading></app-loading>
+}

@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.pet-card {
+  width: 100%;
+  max-width: 760px;
+}
+
+.pet-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 76px;
+  height: 76px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  margin: auto 0;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.pet-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.pet-fact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.pet-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+mat-card-header {
+  gap: 0.5rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.add-record-button {
+  margin-left: auto;
+}
+
+.view-button {
+  margin-left: auto;
+}

@@ -1,0 +1,5 @@
+@use 'mixins';
+
+.record-section {
+    @include mixins.record-display-section();
+}

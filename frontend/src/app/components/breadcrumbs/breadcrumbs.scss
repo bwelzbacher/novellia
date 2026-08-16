@@ -1,0 +1,29 @@
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0 auto;
+    padding-top: 1rem;
+    font-size: 14px;
+    color: var(--mat-sys-on-surface-variant);
+
+    a {
+        color: var(--mat-sys-primary);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    mat-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .active {
+        color: var(--mat-sys-on-surface-variant);
+        font-weight: 500;
+    }
+}

@@ -1,0 +1,10 @@
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    @for (crumb of crumbs(); track crumb.label) {
+    @if(crumb.routerLink) {
+    <a [routerLink]="crumb.routerLink">{{crumb.label}}</a>
+    <mat-icon>chevron_right</mat-icon>
+    } @else {
+    <div class="active">{{crumb.label}}</div>
+    }
+    }
+</nav>

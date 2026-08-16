@@ -1,0 +1,10 @@
+<h3 class="sheet-title">{{data.title}}</h3>
+
+@if (data.message) {
+<p class="sheet-message">{{data.message}}</p>
+}
+
+<div class="sheet-actions">
+    <button matButton (click)="cancel()">Cancel</button>
+    <button matButton="filled" color="warn" (click)="confirm()">Delete</button>
+</div>

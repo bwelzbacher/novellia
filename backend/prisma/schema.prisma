@@ -1,0 +1,213 @@
+// Prisma schema for the pet medical records backend.
+// See ../src/pets and ../src/medical-records for the TypeScript union
+// types (PetSpecies, PetSex, ConditionStatus) that constrain the plain
+// string fields below at the application layer instead of the database.
+//
+// MedicalRecord is a composite "visit" container: it requires a VetRecord
+// (the clinic) and optionally attaches an AppointmentRecord (1:1) plus any
+// number of VaccineRecord / MedicationRecord rows.
+//
+// Condition is its own top-level entity (like VetRecord), not scoped to a
+// single visit — a chronic condition is meant to be referenced across many
+// visits over time. MedicationRecord.conditionId and
+// AppointmentRecord.conditionId are both optional direct FKs (a medication
+// or appointment may or may not relate to a condition).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pet {
+  id             String    @id @default(uuid())
+  name           String
+  species        String
+  breed          String?
+  dateOfBirth    DateTime? @map("date_of_birth")
+  sex            String
+  weightLbs      Float?    @map("weight_lbs")
+  microchipId    String?   @unique @map("microchip_id")
+  ownerName      String    @map("owner_name")
+  ownerEmail     String?   @map("owner_email")
+  ownerPhone     String?   @map("owner_phone")
+  isActive       Boolean   @default(true) @map("is_active")
+  inactiveReason String?   @map("inactive_reason")
+  photoUrl       String?   @map("photo_url")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  medicalRecords MedicalRecord[]
+  conditions     Condition[]
+  allergies      Allergy[]
+
+  @@map("pets")
+}
+
+// A known allergy for a pet — standalone, not tied to a specific visit
+// (mirrors Condition).
+model Allergy {
+  id        String   @id @default(uuid())
+  petId     String   @map("pet_id")
+  allergen  String
+  severity  String
+  reaction  String?
+  notes     String?
+  deleted   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
+  @@map("allergies")
+}
+
+// A clinic/office. Reusable across many medical records and pets — not
+// specific to a single visit or a single veterinarian.
+model VetRecord {
+  id          String   @id @default(uuid())
+  officeName  String   @map("office_name")
+  address     String?
+  phoneNumber String?  @map("phone_number")
+  hours       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  medicalRecords MedicalRecord[]
+
+  @@map("vet_records")
+}
+
+// A pet's condition, tracked across as many visits as apply — not owned by
+// a single MedicalRecord. Referenced by AppointmentRecord and
+// MedicationRecord.
+model Condition {
+  id                  String   @id @default(uuid())
+  petId               String   @map("pet_id")
+  name                String
+  diagnosingPhysician String?  @map("diagnosing_physician")
+  status              String
+  notes               String?
+  deleted             Boolean  @default(false)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  pet          Pet                 @relation(fields: [petId], references: [id], onDelete: Cascade)
+  appointments AppointmentRecord[]
+  medications  MedicationRecord[]
+
+  @@index([petId])
+  @@map("conditions")
+}
+
+model MedicalRecord {
+  id           String   @id @default(uuid())
+  petId        String   @map("pet_id")
+  // Optional — a medication can be logged without a vet visit (e.g. an
+  // OTC medication), so the visit it's attached to doesn't require a vet
+  // office. Appointments/vaccines still expect one at the application
+  // layer, just not enforced by the schema itself.
+  vetRecordId  String?  @map("vet_record_id")
+  date         DateTime
+  sourceSystem String?  @map("source_system")
+  deleted      Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  pet       Pet        @relation(fields: [petId], references: [id], onDelete: Cascade)
+  vetRecord VetRecord? @relation(fields: [vetRecordId], references: [id])
+
+  appointment       AppointmentRecord?
+  vaccineRecords    VaccineRecord[]
+  medicationRecords MedicationRecord[]
+
+  @@index([petId])
+  @@index([vetRecordId])
+  @@index([date])
+  @@map("medical_records")
+}
+
+// At most one per MedicalRecord — the scheduled visit itself.
+model AppointmentRecord {
+  id              String   @id @default(uuid())
+  medicalRecordId String   @unique @map("medical_record_id")
+  conditionId     String?  @map("condition_id")
+  time            String
+  vet             String?
+  reason          String
+  weightLbs       Float?   @map("weight_lbs")
+  temperatureF    Float?   @map("temperature_f")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  medicalRecord MedicalRecord     @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+  condition     Condition?        @relation(fields: [conditionId], references: [id], onDelete: SetNull)
+  notes         AppointmentNote[]
+
+  @@index([conditionId])
+  @@map("appointment_records")
+}
+
+// A single note left on an appointment — an appointment can have any number
+// of these, each tagged with who/what it's from.
+model AppointmentNote {
+  id                  String   @id @default(uuid())
+  appointmentRecordId String   @map("appointment_record_id")
+  type                String
+  text                String
+  deleted             Boolean  @default(false)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  appointmentRecord AppointmentRecord @relation(fields: [appointmentRecordId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentRecordId])
+  @@map("appointment_notes")
+}
+
+model VaccineRecord {
+  id               String    @id @default(uuid())
+  medicalRecordId  String    @map("medical_record_id")
+  name             String
+  administeredDate DateTime  @map("administered_date")
+  nextDueDate      DateTime? @map("next_due_date")
+  notes            String?
+  deleted          Boolean   @default(false)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+
+  @@index([medicalRecordId])
+  @@map("vaccine_records")
+}
+
+model MedicationRecord {
+  id              String   @id @default(uuid())
+  medicalRecordId String   @map("medical_record_id")
+  conditionId     String?  @map("condition_id")
+  name            String
+  dosage          String?
+  duration        String?
+  prescriber      String?
+  notes           String?
+  // The medication's own treatment status — independent of any linked
+  // condition's status, since a medication can be completed or
+  // discontinued (e.g. ineffective, switched) without the condition
+  // itself being resolved.
+  status          String   @default("ACTIVE")
+  deleted         Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+  condition     Condition?    @relation(fields: [conditionId], references: [id], onDelete: SetNull)
+
+  @@index([medicalRecordId])
+  @@index([conditionId])
+  @@map("medication_records")
+}

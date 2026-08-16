@@ -1,0 +1,38 @@
+<div class="record-section">
+    <div class="record-grid">
+        @for (entry of medicationEntries(); track entry.medication.id) {
+        <mat-card appearance="outlined" class="record-card record-card__medication">
+            <mat-card-header>
+                <mat-card-title>
+                    {{entry.medication.name}}
+                    <span class="badge badge-medication__{{entry.medication.status}}">{{entry.medication.status |
+                        formatConst}}</span>
+                </mat-card-title>
+                <mat-card-subtitle>{{entry.record.date | date: 'mediumDate'}}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <p class="record-meta">
+                    @if (entry.medication.dosage) {
+                    {{entry.medication.dosage}}
+                    }
+                    @if (entry.medication.condition?.name) {
+                    {{entry.medication.condition?.name}}
+                    }
+                    @if (entry.medication.duration) {
+                    {{entry.medication.duration}}
+                    }
+                </p>
+                @if (entry.medication.notes) {
+                <p class="record-description">{{entry.medication.notes}}</p>
+                }
+            </mat-card-content>
+            <mat-card-actions>
+                <button matButton (click)="onDeleteMedication(entry.medication)">Delete</button>
+                <button matButton (click)="onEditMedication(entry)">Edit</button>
+            </mat-card-actions>
+        </mat-card>
+        } @empty {
+        <p class="empty-state">No medications on record.</p>
+        }
+    </div>
+</div>

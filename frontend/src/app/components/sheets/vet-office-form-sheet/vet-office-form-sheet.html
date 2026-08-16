@@ -1,0 +1,51 @@
+<h3 class="sheet-title">{{isEditing ? 'Edit' : 'Add'}} Vet Office</h3>
+
+<div class="sheet-content">
+    <form [formGroup]="form" class="vet-office-form">
+        @if (!addingNewVet()) {
+        <mat-form-field appearance="outline">
+            <mat-label>Vet office</mat-label>
+            <mat-select formControlName="vetRecordId">
+                @for (vetRecord of vetRecords(); track vetRecord.id) {
+                <mat-option [value]="vetRecord.id">{{vetRecord.officeName}}</mat-option>
+                }
+            </mat-select>
+            @if (form.controls.vetRecordId.hasError('required')) {
+            <mat-error>Vet office is required</mat-error>
+            }
+        </mat-form-field>
+        <button matButton (click)="toggleNewVet()"><mat-icon>add</mat-icon> Add a vet
+            office</button>
+        } @else {
+        <mat-form-field appearance="outline">
+            <mat-label>Office name</mat-label>
+            <input matInput formControlName="newVetOfficeName" />
+            @if (form.controls.newVetOfficeName.hasError('required')) {
+            <mat-error>Office name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="newVetAddress" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Phone number</mat-label>
+            <input matInput formControlName="newVetPhoneNumber" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Hours</mat-label>
+            <input matInput formControlName="newVetHours" />
+        </mat-form-field>
+        @if (vetRecords().length > 0) {
+        <button matButton (click)="toggleNewVet()">Use an existing vet office</button>
+        }
+        }
+    </form>
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving()" (click)="save()">
+        {{saving() ? 'Saving…' : 'Save'}}
+    </button>
+</div>

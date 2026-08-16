@@ -1,0 +1,28 @@
+// No visible content of its own — the host page supplies the trigger
+// button — so this shouldn't generate a layout box in the host's flex row.
+:host {
+  display: contents;
+}
+
+// mat-menu-item's own theme styles set the icon's `color` from
+// --mat-menu-item-icon-color and outrank a plain class selector on
+// specificity, so override that variable instead of fighting it.
+.menu-icon-appointment {
+  --mat-menu-item-icon-color: var(--category-appointment);
+}
+
+.menu-icon-condition {
+  --mat-menu-item-icon-color: var(--category-condition);
+}
+
+.menu-icon-medication {
+  --mat-menu-item-icon-color: var(--category-medication);
+}
+
+.menu-icon-vaccine {
+  --mat-menu-item-icon-color: var(--category-vaccine);
+}
+
+.menu-icon-allergy {
+  --mat-menu-item-icon-color: var(--category-allergy);
+}

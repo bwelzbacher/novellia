@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: var(--max-sheet-width);
+  margin: 0 auto;
+}
+
+.sheet-title {
+  margin: 0;
+  padding: 16px 16px 0;
+}
+
+.sheet-content {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 8px 16px 0;
+}
+
+.record-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.section-label {
+  margin: 12px 0 4px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.row-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px;
+}

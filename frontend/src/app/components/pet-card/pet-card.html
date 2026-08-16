@@ -1,0 +1,63 @@
+<mat-card appearance="outlined" class="pet-card">
+    <mat-card-header>
+        <div mat-card-avatar class="pet-avatar">
+            @if (photoUrl(); as photo) {
+            <img [src]="photo" [alt]="pet().name" />
+            } @else {
+            <mat-icon>pets</mat-icon>
+            }
+        </div>
+        <div class="pet-info">
+            <mat-card-title>{{pet().name}}</mat-card-title>
+            <mat-card-subtitle>
+                {{pet().species | titlecase}}
+                @if (pet().breed) {
+                · {{pet().breed}}
+                }
+            </mat-card-subtitle>
+            <mat-card-subtitle>
+                <div class="pet-facts">
+                    <div class="pet-fact">
+                        @if(pet().sex === 'UNKNOWN') {
+                        <mat-icon>wc</mat-icon>
+                        } @else {
+                        <mat-icon>{{pet().sex | lowercase }}</mat-icon>
+                        }
+                        <span>{{pet().sex | titlecase}}</span>
+                    </div>
+                    @if (age(); as petAge) {
+                    <div class="pet-fact">
+                        <mat-icon>cake</mat-icon>
+                        <span>{{petAge}}</span>
+                    </div>
+                    }
+                    @if (pet().weightLbs; as weight) {
+                    <div class="pet-fact">
+                        <mat-icon>monitor_weight</mat-icon>
+                        <span>{{weight}} lb</span>
+                    </div>
+                    }
+                    <div class="pet-fact">
+                        <mat-icon>person</mat-icon>
+                        <span>{{pet().ownerName}}</span>
+                    </div>
+                </div>
+            </mat-card-subtitle>
+        </div>
+        <app-pet-actions-menu [pet]="pet()" (triggerRefresh)="triggerRefresh.emit()" />
+    </mat-card-header>
+    <mat-card-actions>
+        @if (badges().length > 0) {
+        <div class="badges">
+            @for (badge of badges(); track badge.label) {
+            <span class="badge badge__{{badge.variant}}">
+                <mat-icon>{{badge.icon}}</mat-icon>
+                {{badge.label}}
+            </span>
+            }
+        </div>
+        }
+        <button matButton class=" view-button" [routerLink]="['/pets', pet().id]">View <mat-icon
+                iconPositionEnd>arrow_forward</mat-icon></button>
+    </mat-card-actions>
+</mat-card>

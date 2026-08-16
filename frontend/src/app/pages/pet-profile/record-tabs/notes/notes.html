@@ -1,0 +1,19 @@
+<div class="record-section">
+    <div class="record-list">
+        @for (entry of notes(); track entry.id) {
+        <mat-card appearance="outlined" class="record-card note record-card__{{entry.kind.toLowerCase()}}">
+            <mat-card-header>
+                <mat-card-title><span>{{entry.kind | titlecase}}: {{entry.topic}}</span> <span class="date">{{entry.date
+                        |
+                        date:
+                        'mediumDate'}}</span></mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p class="record-description">{{entry.note}}</p>
+            </mat-card-content>
+        </mat-card>
+        } @empty {
+        <p class="empty-state">No notes on record.</p>
+        }
+    </div>
+</div>

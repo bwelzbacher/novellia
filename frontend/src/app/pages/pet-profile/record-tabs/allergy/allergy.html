@@ -1,0 +1,27 @@
+<div class="record-section">
+    <div class="record-grid">
+        @for (allergy of allergies(); track allergy.id) {
+        <mat-card appearance="outlined" class="record-card record-card__allergy">
+            <mat-card-header>
+                <mat-card-title>
+                    {{allergy.allergen}}
+                    <span class="badge badge__{{allergy.severity}}">{{allergy.severity | formatConst}}</span>
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                @if (allergy.reaction) {
+                <p class="record-meta">{{allergy.reaction}}</p>
+                }
+                @if (allergy.notes) {
+                <p class="record-description">{{allergy.notes}}</p>
+                }
+            </mat-card-content>
+            <mat-card-actions>
+                <button matButton (click)="onDeleteAllergy(allergy)">Delete</button>
+            </mat-card-actions>
+        </mat-card>
+        } @empty {
+        <p class="empty-state">No known allergies on record.</p>
+        }
+    </div>
+</div>

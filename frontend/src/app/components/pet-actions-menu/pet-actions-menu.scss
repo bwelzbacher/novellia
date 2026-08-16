@@ -1,0 +1,6 @@
+// Self-contained "push to the far right" so any flex-row host (card
+// header, page header) can drop this in without its own override.
+:host {
+  display: inline-flex;
+  margin-left: auto;
+}

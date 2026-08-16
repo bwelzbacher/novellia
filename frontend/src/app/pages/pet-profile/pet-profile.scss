@@ -1,0 +1,135 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.profile {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .profile-header {
+    display: flex;
+    gap: 1.25rem;
+
+    .avatar-large {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      background: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
+
+      mat-icon {
+        font-size: 72px;
+        width: 72px;
+        height: 72px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+
+    hgroup {
+      h1 {
+        margin: 0;
+      }
+
+      p {
+        margin: 0;
+        color: var(--mat-sys-on-surface-variant);
+      }
+    }
+  }
+
+  .profile-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-top: 4px;
+
+    .fact {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--mat-sys-on-surface-variant);
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: var(--mat-sys-primary);
+      }
+    }
+  }
+}
+
+.records-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  h2 {
+    margin: 0;
+  }
+
+  .record-actions {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+.record-tabs .tab-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+
+  &__appointments {
+    color: var(--category-appointment);
+  }
+
+  &__conditions {
+    color: var(--category-condition);
+  }
+
+  &__medications {
+    color: var(--category-medication);
+  }
+
+  &__vaccines {
+    color: var(--category-vaccine);
+  }
+
+  &__notes {
+    color: var(--category-notes);
+  }
+
+  &__allergies {
+    color: var(--category-allergy);
+  }
+}
+
+.empty-state {
+  color: var(--mat-sys-on-surface-variant);
+  padding: 8px 4px 24px;
+}

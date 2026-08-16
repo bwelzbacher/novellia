@@ -1,0 +1,12 @@
+<h3 class="sheet-title">Why do you want to remove {{data.petName}}?</h3>
+
+<mat-radio-group class="reason-group" [value]="selectedReason()" (change)="onReasonChange($event)">
+    @for (option of reasons; track option.value) {
+    <mat-radio-button [value]="option.value">{{option.label}}</mat-radio-button>
+    }
+</mat-radio-group>
+
+<div class="sheet-actions">
+    <button matButton (click)="cancel()">Cancel</button>
+    <button matButton="filled" (click)="confirm()">Remove</button>
+</div>

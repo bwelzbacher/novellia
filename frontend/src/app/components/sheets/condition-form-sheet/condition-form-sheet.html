@@ -1,0 +1,28 @@
+<h3 class="sheet-title">Edit condition</h3>
+
+<div class="sheet-content">
+    <form [formGroup]="form" class="condition-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Condition name</mat-label>
+            <input matInput formControlName="name" />
+            @if (form.controls.name.hasError('required')) {
+            <mat-error>Condition name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+                @for (status of statuses; track status) {
+                <mat-option [value]="status">{{status | formatConst}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </form>
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving()" (click)="save()">
+        {{saving() ? 'Saving…' : 'Save'}}
+    </button>
+</div>

@@ -1,0 +1,255 @@
+@if (step() === 'upload') {
+<h3 class="sheet-title">Upload a document</h3>
+<div class="sheet-content">
+    @if (extracting()) {
+    <div class="upload-status">
+        <div class="spinner-wrap">
+            <mat-progress-spinner mode="indeterminate" diameter="138" strokeWidth="4" />
+            <img src="logo.png" alt="" class="spinner-logo" />
+        </div>
+        <p>Processing your document…</p>
+    </div>
+    } @else {
+    <p class="upload-hint">
+        Upload a photo or PDF of a discharge summary, vaccine certificate, or prescription label — we'll pull out
+        the details for you to review before anything is saved.
+    </p>
+    <input #fileInput type="file" accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" hidden
+        (change)="onFileSelected($event)" />
+    <button matButton="filled" type="button" (click)="fileInput.click()">
+        <mat-icon>upload_file</mat-icon>
+        Choose a file
+    </button>
+    @if (extractError(); as error) {
+    <p class="upload-error">{{error}}</p>
+    }
+    }
+</div>
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+</div>
+}
+
+@if (step() === 'review') {
+<h3 class="sheet-title">Review extracted record</h3>
+<div class="sheet-content">
+    <button matButton type="button" class="back-link" (click)="backToUpload()">
+        <mat-icon>arrow_back</mat-icon> Choose a different file
+    </button>
+
+    @if (warnings().length > 0) {
+    <div class="warning-banner">
+        @for (warning of warnings(); track warning) {
+        <p>{{warning}}</p>
+        }
+    </div>
+    }
+
+    <form [formGroup]="form" class="record-form">
+        <h4 class="section-label">Vet office</h4>
+        @if (!addingNewVet()) {
+        <mat-form-field appearance="outline">
+            <mat-label>Vet office</mat-label>
+            <mat-select formControlName="vetRecordId">
+                @for (vetRecord of vetRecords(); track vetRecord.id) {
+                <mat-option [value]="vetRecord.id">{{vetRecord.officeName}}</mat-option>
+                }
+            </mat-select>
+            @if (form.controls.vetRecordId.hasError('required')) {
+            <mat-error>Vet office is required</mat-error>
+            }
+        </mat-form-field>
+        <button matButton type="button" (click)="toggleNewVet()"><mat-icon>add</mat-icon> Add a vet office</button>
+        } @else {
+        <mat-form-field appearance="outline">
+            <mat-label>Office name</mat-label>
+            <input matInput formControlName="newVetOfficeName" />
+            @if (form.controls.newVetOfficeName.hasError('required')) {
+            <mat-error>Office name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="newVetAddress" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Phone number</mat-label>
+            <input matInput formControlName="newVetPhoneNumber" />
+        </mat-form-field>
+        @if (vetRecords().length > 0) {
+        <button matButton type="button" (click)="toggleNewVet()">Use an existing vet office</button>
+        }
+        }
+
+        <mat-form-field appearance="outline">
+            <mat-label>Visit date</mat-label>
+            <input matInput type="date" formControlName="date" />
+            @if (form.controls.date.hasError('required')) {
+            <mat-error>Date is required</mat-error>
+            } @else if (form.controls.date.hasError('dateInFuture')) {
+            <mat-error>Visit date can't be in the future</mat-error>
+            }
+        </mat-form-field>
+
+        <h4 class="section-label">Appointment (optional)</h4>
+        <mat-form-field appearance="outline">
+            <mat-label>Time</mat-label>
+            <input matInput type="time" formControlName="appointmentTime" />
+            @if (form.controls.appointmentTime.hasError('required')) {
+            <mat-error>Required once any appointment field is filled in</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Vet (optional)</mat-label>
+            <input matInput formControlName="appointmentVet" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Reason</mat-label>
+            <input matInput formControlName="appointmentReason" />
+            @if (form.controls.appointmentReason.hasError('required')) {
+            <mat-error>Required once any appointment field is filled in</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Weight (lb)</mat-label>
+            <input matInput type="number" formControlName="appointmentWeightLbs" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Temperature (°F)</mat-label>
+            <input matInput type="number" formControlName="appointmentTemperatureF" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Note type</mat-label>
+            <mat-select formControlName="appointmentNoteType">
+                @for (type of appointmentNoteTypes; track type) {
+                <mat-option [value]="type">{{type | formatConst}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Visit notes</mat-label>
+            <textarea matInput formControlName="appointmentSummaryNotes" rows="2"></textarea>
+        </mat-form-field>
+
+        <h4 class="section-label">Vaccines</h4>
+        @for (vaccine of vaccines.controls; track $index) {
+        <div class="row-group" [formGroup]="vaccine">
+            <mat-form-field appearance="outline">
+                <mat-label>Vaccine name</mat-label>
+                <input matInput formControlName="name" />
+                @if (vaccine.controls.name.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Next due date</mat-label>
+                <input matInput type="date" formControlName="nextDueDate" />
+                @if (vaccine.controls.nextDueDate.hasError('dateInPast')) {
+                <mat-error>Next due date can't be in the past</mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Notes</mat-label>
+                <input matInput formControlName="notes" />
+            </mat-form-field>
+            <button matButton (click)="removeVaccine($index)" aria-label="Remove vaccine">
+                <mat-icon>delete</mat-icon> Delete
+            </button>
+        </div>
+        }
+        <button matButton (click)="addVaccine()"><mat-icon>add</mat-icon> Add a vaccine</button>
+
+        <h4 class="section-label">Conditions</h4>
+        @for (row of conditionRows(); track row.key) {
+        <div class="row-group" [formGroup]="row.group">
+            @if (row.group.controls.useExisting.value) {
+            <mat-form-field appearance="outline">
+                <mat-label>Existing condition</mat-label>
+                <mat-select formControlName="existingId">
+                    @for (condition of existingConditions(); track condition.id) {
+                    <mat-option [value]="condition.id">{{condition.name}}</mat-option>
+                    }
+                </mat-select>
+                @if (row.group.controls.existingId.hasError('required')) {
+                <mat-error>Select a condition</mat-error>
+                }
+            </mat-form-field>
+            <button matButton type="button" (click)="row.group.controls.useExisting.setValue(false)">
+                Enter a new condition instead
+            </button>
+            } @else {
+            <mat-form-field appearance="outline">
+                <mat-label>Condition name</mat-label>
+                <input matInput formControlName="name" />
+                @if (row.group.controls.name.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    @for (status of conditionStatuses; track status) {
+                    <mat-option [value]="status">{{status}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Diagnosing physician</mat-label>
+                <input matInput formControlName="diagnosingPhysician" />
+            </mat-form-field>
+            @if (existingConditions().length > 0) {
+            <button matButton type="button" (click)="row.group.controls.useExisting.setValue(true)">
+                Use an existing condition instead
+            </button>
+            }
+            }
+            <button matButton (click)="removeConditionRow(row.key)" aria-label="Remove condition">
+                <mat-icon>delete</mat-icon> Delete
+            </button>
+        </div>
+        }
+        <button matButton type="button" (click)="addConditionRow()"><mat-icon>add</mat-icon> Add a condition</button>
+
+        <h4 class="section-label">Medications</h4>
+        @for (medication of medications.controls; track $index) {
+        <div class="row-group" [formGroup]="medication">
+            <mat-form-field appearance="outline">
+                <mat-label>Medication name</mat-label>
+                <input matInput formControlName="name" />
+                @if (medication.controls.name.hasError('required')) {
+                <mat-error>Name is required</mat-error>
+                }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Dosage</mat-label>
+                <input matInput formControlName="dosage" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Duration</mat-label>
+                <input matInput formControlName="duration" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Treats condition (optional)</mat-label>
+                <mat-select formControlName="conditionKey">
+                    <mat-option value="">None</mat-option>
+                    @for (row of conditionRows(); track row.key) {
+                    <mat-option [value]="row.key">{{row.group.controls.name.value || 'Untitled condition'}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <button matButton (click)="removeMedication($index)" aria-label="Remove medication">
+                <mat-icon>delete</mat-icon> Delete
+            </button>
+        </div>
+        }
+        <button matButton type="button" (click)="addMedication()"><mat-icon>add</mat-icon> Add a medication</button>
+    </form>
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving()" (click)="save()">
+        {{saving() ? 'Saving…' : 'Save record'}}
+    </button>
+</div>
+}

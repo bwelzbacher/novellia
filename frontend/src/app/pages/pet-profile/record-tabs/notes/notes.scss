@@ -1,0 +1,9 @@
+@use 'mixins';
+
+.record-section {
+    @include mixins.record-display-section();
+
+    .date {
+        font-size: 1rem;
+    }
+}

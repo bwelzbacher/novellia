@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/brennawelzbacher/Projects/novellia/frontend && exec /Users/brennawelzbacher/.nvm/versions/node/v22.23.2/bin/node node_modules/@angular/cli/bin/ng.js serve --port \"$PORT\""
+      ],
+      "port": 4200,
+      "autoPort": true
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 24px;
+  height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+
+  &.no-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  min-height: 0;
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 12px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.add-pet-button {
+  flex: 1;
+}
+
+.filters-button {
+  display: none;
+  flex: 1;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+// mat-menu's default panel has a 280px max-width, too narrow for the
+// filter form fields plus this content's own padding — widen it. The
+// panel renders in the CDK overlay outside this component's view, so
+// reaching it needs ::ng-deep (same as mat-card-header-text elsewhere).
+::ng-deep .filters-menu-panel {
+  max-width: 320px;
+}
+
+.filters-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 4px 16px 16px;
+  box-sizing: border-box;
+
+  h3 {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .sidebar {
+    height: auto;
+  }
+
+  .filters-button {
+    display: flex;
+  }
+
+  .filters {
+    display: none;
+  }
+}
+
+.filter-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pet-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.empty-img {
+  max-height: 26rem;
+  width: 100%;
+}
+
+hgroup,
+h3 {
+  text-align: center;
+  margin-top: -1rem;
+}

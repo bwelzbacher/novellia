@@ -1,0 +1,36 @@
+<h3 class="sheet-title">Add allergy</h3>
+
+<div class="sheet-content">
+    <form [formGroup]="form" class="allergy-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Allergen</mat-label>
+            <input matInput formControlName="allergen" />
+            @if (form.controls.allergen.hasError('required')) {
+            <mat-error>Allergen is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Severity</mat-label>
+            <mat-select formControlName="severity">
+                @for (severity of severities; track severity) {
+                <mat-option [value]="severity">{{severity | formatConst}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Reaction</mat-label>
+            <input matInput formControlName="reaction" placeholder="e.g. Hives, swelling" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="notes" rows="3"></textarea>
+        </mat-form-field>
+    </form>
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving()" (click)="save()">
+        {{saving() ? 'Saving…' : 'Save'}}
+    </button>
+</div>

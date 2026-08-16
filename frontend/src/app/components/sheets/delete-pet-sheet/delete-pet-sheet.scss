@@ -1,0 +1,24 @@
+.sheet-title {
+  margin: 0;
+  padding: 16px 16px 0;
+}
+
+.sheet-subtitle {
+  margin: 8px 16px 0;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.reason-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 16px 0;
+}
+
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px;
+}

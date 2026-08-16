@@ -1,0 +1,131 @@
+@if (pet(); as pet) {
+<div class="profile">
+    <app-breadcrumbs [crumbs]="crumbs()"></app-breadcrumbs>
+    <div class="profile-header">
+        <div class="avatar-large">
+            @if (photoUrl(); as photo) {
+            <img [src]="photo" [alt]="pet.name" />
+            } @else {
+            <mat-icon>pets</mat-icon>
+            }
+        </div>
+        <div class="profile-info">
+            <hgroup>
+                <h1>{{pet.name}}</h1>
+                <p>
+                    {{pet.species | titlecase}}
+                    @if (pet.breed) {
+                    · {{pet.breed}}
+                    }
+                </p>
+            </hgroup>
+            <div class="profile-facts">
+                <div class="fact">
+                    @if(pet.sex === 'UNKNOWN') {
+                    <mat-icon>wc</mat-icon>
+                    } @else {
+                    <mat-icon>{{pet.sex | lowercase }}</mat-icon>
+                    }
+                    <span>{{pet.sex | titlecase}}</span>
+                </div>
+                @if (age(); as petAge) {
+                <div class="fact">
+                    <mat-icon>cake</mat-icon>
+                    <span>{{petAge}}</span>
+                </div>
+                }
+                @if (pet.weightLbs; as weight) {
+                <div class="fact">
+                    <mat-icon>monitor_weight</mat-icon>
+                    <span>{{weight}} lb</span>
+                </div>
+                }
+                @if (pet.microchipId; as chip) {
+                <div class="fact">
+                    <mat-icon>tag</mat-icon>
+                    <span>{{chip}}</span>
+                </div>
+                }
+                <div class="fact">
+                    <mat-icon>person</mat-icon>
+                    <span>{{pet.ownerName}}</span>
+                </div>
+                @if (pet.ownerEmail; as email) {
+                <div class="fact">
+                    <mat-icon>mail</mat-icon>
+                    <span>{{email}}</span>
+                </div>
+                }
+                @if (pet.ownerPhone; as phone) {
+                <div class="fact">
+                    <mat-icon>call</mat-icon>
+                    <span>{{phone}}</span>
+                </div>
+                }
+            </div>
+        </div>
+
+        <app-pet-actions-menu [pet]="pet" (triggerRefresh)="store.reloadPet()" [showMedicalRecord]="false" />
+    </div>
+
+    <div class="records-toolbar">
+        <h2>Medical Records</h2>
+        <div class="record-actions">
+            <button matButton="outlined" (click)="onUploadDocument()"><mat-icon>upload-file</mat-icon>Extract
+                document</button>
+            <app-add-record-menu #addRecordMenu [petId]="pet.id" (triggerRefresh)="store.reload()" />
+            <button matButton="filled" [matMenuTriggerFor]="addRecordMenu.menu()">
+                <mat-icon>add</mat-icon>
+                Add
+            </button>
+        </div>
+    </div>
+
+    <mat-tab-group class="record-tabs" animationDuration="0ms">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon tab-icon__appointments">event</mat-icon>
+                Vet Visits
+            </ng-template>
+            <app-vet-visit [records]="records()" [petId]="pet.id"></app-vet-visit>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon tab-icon__conditions">healing</mat-icon>
+                Conditions
+            </ng-template>
+            <app-condition [conditions]="conditions()" [petId]="pet.id"></app-condition>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon tab-icon__allergies">warning</mat-icon>
+                Allergies
+            </ng-template>
+            <app-allergy [allergies]="allergies()"></app-allergy>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon tab-icon__medications">medication</mat-icon>
+                Medications
+            </ng-template>
+            <app-medication [records]="records()" [petId]="pet.id"></app-medication>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon tab-icon__vaccines">vaccines</mat-icon>
+                Immunizations
+            </ng-template>
+            <app-immunization [records]="records()" [petId]="pet.id"></app-immunization>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon tab-icon__notes">notes</mat-icon>
+                Notes
+            </ng-template>
+            <app-notes [records]="records()" [conditions]="conditions()"></app-notes>
+        </mat-tab>
+    </mat-tab-group>
+</div>
+} @else {
+<app-loading></app-loading>
+}

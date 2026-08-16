@@ -1,0 +1,34 @@
+@use 'mixins';
+
+.record-section {
+    @include mixins.record-display-section();
+
+    mat-card-title {
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.25rem 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.vitals {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+
+    .vital {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: var(--mat-sys-on-surface-variant);
+
+        mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: var(--mat-sys-primary);
+        }
+    }
+}

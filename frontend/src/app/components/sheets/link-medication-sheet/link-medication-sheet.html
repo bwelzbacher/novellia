@@ -1,0 +1,34 @@
+@if (loading()) {
+<app-loading></app-loading>
+} @else {
+<h3 class="sheet-title">Link a medication</h3>
+
+<div class="sheet-content">
+    @if (options().length > 0) {
+    <form [formGroup]="form" class="link-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Medication</mat-label>
+            <mat-select formControlName="medicationId">
+                @for (option of options(); track option.id) {
+                <mat-option [value]="option.id">
+                    {{option.name}}{{option.dosage ? ' — ' + option.dosage : ''}} ({{option.date | date: 'mediumDate'}})
+                </mat-option>
+                }
+            </mat-select>
+            @if (form.controls.medicationId.hasError('required')) {
+            <mat-error>Select a medication</mat-error>
+            }
+        </mat-form-field>
+    </form>
+    } @else {
+    <p class="empty-state">No unlinked medications available for this pet.</p>
+    }
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving() || options().length === 0" (click)="save()">
+        {{saving() ? 'Saving…' : 'Link'}}
+    </button>
+</div>
+}

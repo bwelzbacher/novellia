@@ -1,0 +1,182 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.record-detail {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.record-header {
+  h1 {
+    margin: 0;
+  }
+}
+
+.record-header-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.record-header-subtitle {
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.section-card {
+  width: 100%;
+  border-left: 0.25rem solid var(--mat-sys-neutral10);
+
+  mat-card-header {
+    ::ng-deep .mat-mdc-card-header-text {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+}
+
+.section-primary {
+  margin: 0;
+  font-weight: 500;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 8px;
+}
+
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.section-notes {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.record-section {
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+.section-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 12px;
+}
+
+.section-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-card-appointment {
+  border-left-color: var(--category-appointment);
+}
+
+.entry-card {
+  border-left: 0.25rem solid transparent;
+}
+
+.entry-card-medication {
+  border-left-color: var(--category-medication);
+}
+
+.entry-card-vaccine {
+  border-left-color: var(--category-vaccine);
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+
+  .section-notes {
+    margin: 0;
+    flex: 1;
+  }
+}
+
+.note-type-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font-size: 11px;
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.related-condition {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.empty-state {
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.source-system {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.loading {
+  padding: 24px;
+}

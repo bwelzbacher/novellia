@@ -1,0 +1,263 @@
+<h3 class="sheet-title">{{isEditing ? 'Edit' : 'Add'}} {{kind | formatConst}}</h3>
+
+<div class="sheet-content">
+    <form [formGroup]="form" class="record-form">
+        @if (needsVetAndDate) {
+        @if (!addingNewVet()) {
+        <mat-form-field appearance="outline">
+            <mat-label>Vet office{{requiresVetRecord ? '' : ' (optional)'}}</mat-label>
+            <mat-select formControlName="vetRecordId">
+                @if (!requiresVetRecord) {
+                <mat-option value="">None</mat-option>
+                }
+                @for (vetRecord of vetRecords(); track vetRecord.id) {
+                <mat-option [value]="vetRecord.id">{{vetRecord.officeName}}</mat-option>
+                }
+            </mat-select>
+            @if (form.controls.vetRecordId.hasError('required')) {
+            <mat-error>Vet office is required</mat-error>
+            }
+        </mat-form-field>
+        <button matButton (click)="toggleNewVet()"><mat-icon>add</mat-icon> Add a vet
+            office</button>
+        } @else {
+        <mat-form-field appearance="outline">
+            <mat-label>Office name</mat-label>
+            <input matInput formControlName="newVetOfficeName" />
+            @if (form.controls.newVetOfficeName.hasError('required')) {
+            <mat-error>Office name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="newVetAddress" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Phone number</mat-label>
+            <input matInput formControlName="newVetPhoneNumber" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Hours</mat-label>
+            <input matInput formControlName="newVetHours" />
+        </mat-form-field>
+        @if (vetRecords().length > 0) {
+        <button matButton (click)="toggleNewVet()">Use an existing vet office</button>
+        }
+        }
+
+        <mat-form-field appearance="outline">
+            <mat-label>Date</mat-label>
+            <input matInput type="date" formControlName="date" />
+            @if (form.controls.date.hasError('required')) {
+            <mat-error>Date is required</mat-error>
+            } @else if (form.controls.date.hasError('dateInFuture')) {
+            <mat-error>Date can't be in the future</mat-error>
+            }
+        </mat-form-field>
+        }
+
+        @if (kind === 'NOTE') {
+        <mat-form-field appearance="outline">
+            <mat-label>Note type</mat-label>
+            <mat-select formControlName="noteType">
+                @for (type of appointmentNoteTypes; track type) {
+                <mat-option [value]="type">{{type | formatConst}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Note</mat-label>
+            <textarea matInput formControlName="noteText" rows="3"></textarea>
+            @if (form.controls.noteText.hasError('required')) {
+            <mat-error>Note text is required</mat-error>
+            }
+        </mat-form-field>
+        }
+
+        @if (kind === 'APPOINTMENT') {
+        <mat-form-field appearance="outline">
+            <mat-label>Time</mat-label>
+            <input matInput type="time" formControlName="appointmentTime" />
+            @if (form.controls.appointmentTime.hasError('required')) {
+            <mat-error>Time is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Vet's name (optional)</mat-label>
+            <input matInput formControlName="appointmentVet" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Reason</mat-label>
+            <input matInput formControlName="appointmentReason" />
+            @if (form.controls.appointmentReason.hasError('required')) {
+            <mat-error>Reason is required</mat-error>
+            }
+        </mat-form-field>
+        @if(isEditing) {
+        <mat-form-field appearance="outline">
+            <mat-label>Weight (lb)</mat-label>
+            <input matInput type="number" formControlName="appointmentWeightLbs" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Temperature (°F)</mat-label>
+            <input matInput type="number" formControlName="appointmentTemperatureF" />
+        </mat-form-field>
+        }
+
+        @if (showsAppointmentNotesArray) {
+        <h4 class="section-label">Notes</h4>
+        @for (note of appointmentNotes.controls; track $index) {
+        <div class="row-group" [formGroup]="note">
+            <mat-form-field appearance="outline">
+                <mat-label>Type</mat-label>
+                <mat-select formControlName="type">
+                    @for (type of appointmentNoteTypes; track type) {
+                    <mat-option [value]="type">{{type | formatConst}}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Text</mat-label>
+                <textarea matInput formControlName="text" rows="2"></textarea>
+                @if (note.controls.text.hasError('required')) {
+                <mat-error>Note text is required</mat-error>
+                }
+            </mat-form-field>
+            <button matButton type="button" (click)="removeAppointmentNote($index)">Remove note</button>
+        </div>
+        }
+        <button matButton type="button" (click)="addAppointmentNote()"><mat-icon>add</mat-icon> Add a note</button>
+        }
+        }
+
+        @if (kind === 'VACCINE') {
+        <mat-form-field appearance="outline">
+            <mat-label>Vaccine name</mat-label>
+            <input matInput formControlName="vaccineName" />
+            @if (form.controls.vaccineName.hasError('required')) {
+            <mat-error>Vaccine name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Next due date</mat-label>
+            <input matInput type="date" formControlName="vaccineNextDueDate" />
+            @if (form.controls.vaccineNextDueDate.hasError('dateInPast')) {
+            <mat-error>Next due date can't be in the past</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="vaccineNotes" rows="3"></textarea>
+        </mat-form-field>
+        }
+
+        @if (showsConditionPicker) {
+        @if (!addingNewCondition()) {
+        <mat-form-field appearance="outline">
+            <mat-label>Related condition (optional)</mat-label>
+            <mat-select formControlName="conditionId">
+                <mat-option value="">None</mat-option>
+                @for (condition of conditions(); track condition.id) {
+                <mat-option [value]="condition.id">{{condition.name}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <button matButton (click)="toggleNewCondition()"><mat-icon>add</mat-icon> Add a condition</button>
+        } @else {
+        <mat-form-field appearance="outline">
+            <mat-label>Condition name</mat-label>
+            <input matInput formControlName="conditionName" />
+            @if (form.controls.conditionName.hasError('required')) {
+            <mat-error>Condition name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Diagnosing physician</mat-label>
+            <input matInput formControlName="conditionDiagnosingPhysician" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="conditionStatus">
+                @for (status of conditionStatuses; track status) {
+                <mat-option [value]="status">{{status}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Condition notes</mat-label>
+            <textarea matInput formControlName="conditionNotes" rows="3"></textarea>
+        </mat-form-field>
+        @if (conditions().length > 0) {
+        <button matButton (click)="toggleNewCondition()">Use an existing condition</button>
+        }
+        }
+        }
+
+        @if (kind === 'CONDITION') {
+        <mat-form-field appearance="outline">
+            <mat-label>Condition name</mat-label>
+            <input matInput formControlName="conditionName" />
+            @if (form.controls.conditionName.hasError('required')) {
+            <mat-error>Condition name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Diagnosing physician</mat-label>
+            <input matInput formControlName="conditionDiagnosingPhysician" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="conditionStatus">
+                @for (status of conditionStatuses; track status) {
+                <mat-option [value]="status">{{status}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <textarea matInput formControlName="conditionNotes" rows="3"></textarea>
+        </mat-form-field>
+        }
+
+        @if (kind === 'MEDICATION') {
+        <mat-form-field appearance="outline">
+            <mat-label>Medication name</mat-label>
+            <input matInput formControlName="medicationName" />
+            @if (form.controls.medicationName.hasError('required')) {
+            <mat-error>Medication name is required</mat-error>
+            }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="medicationStatus">
+                @for (status of medicationStatuses; track status) {
+                <mat-option [value]="status">{{status | formatConst}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Dosage</mat-label>
+            <input matInput formControlName="medicationDosage" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Duration</mat-label>
+            <input matInput formControlName="medicationDuration" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Prescriber</mat-label>
+            <input matInput formControlName="medicationPrescriber" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Medication notes</mat-label>
+            <textarea matInput formControlName="medicationNotes" rows="3"></textarea>
+        </mat-form-field>
+        }
+    </form>
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving()" (click)="save()">
+        {{saving() ? 'Saving…' : 'Save'}}
+    </button>
+</div>

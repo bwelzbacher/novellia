@@ -1,0 +1,88 @@
+@if (loading()) {
+<app-loading></app-loading>
+} @else {
+<h3 class="sheet-title">{{petId ? 'Edit ' + petName() : 'Add pet'}}</h3>
+
+<div class="sheet-content">
+    <div class="photo-section">
+        <div class="photo-avatar">
+            @if (photoPreviewUrl(); as photo) {
+            <img [src]="photo" alt="Pet photo" />
+            } @else {
+            <mat-icon>pets</mat-icon>
+            }
+        </div>
+        <input #photoInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)" />
+        <button matButton type="button" (click)="photoInput.click()">
+            <mat-icon>photo_camera</mat-icon>
+            Change photo
+        </button>
+    </div>
+
+    <form [formGroup]="form" class="pet-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Owner's name</mat-label>
+            <input matInput formControlName="ownerName" />
+            @if (form.controls.ownerName.hasError('required')) {
+            <mat-error>Owner name is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Pet's name</mat-label>
+            <input matInput formControlName="name" />
+            @if (form.controls.name.hasError('required')) {
+            <mat-error>Name is required</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Species</mat-label>
+            <mat-select formControlName="species">
+                @for (species of petSpecies; track species) {
+                <mat-option [value]="species">{{species | titlecase}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Breed</mat-label>
+            <input matInput formControlName="breed" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Date of birth</mat-label>
+            <input matInput type="date" formControlName="dateOfBirth" />
+            @if (form.controls.dateOfBirth.hasError('dateInFuture')) {
+            <mat-error>Date of birth can't be in the future</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Sex</mat-label>
+            <mat-select formControlName="sex">
+                @for (sex of petSex; track sex) {
+                <mat-option [value]="sex">{{sex | titlecase}}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Weight (lb)</mat-label>
+            <input matInput type="number" step="0.1" min="0" formControlName="weightLbs" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Microchip ID</mat-label>
+            <input matInput formControlName="microchipId" />
+        </mat-form-field>
+    </form>
+</div>
+
+<div class="sheet-actions">
+    <button matButton type="button" (click)="cancel()">Cancel</button>
+    <button matButton="filled" type="button" [disabled]="saving()" (click)="save()">
+        {{saving() ? 'Saving…' : 'Save'}}
+    </button>
+</div>
+}

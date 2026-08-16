@@ -1,0 +1,18 @@
+<button matIconButton [matMenuTriggerFor]="petMenu" aria-label="Pet actions">
+    <mat-icon>more_vert</mat-icon>
+</button>
+<mat-menu #petMenu="matMenu">
+    @if (showMedicalRecord()) {
+    <button mat-menu-item [matMenuTriggerFor]="addRecordMenu.menu()">
+        Add Medical Record
+    </button>
+    }
+    <button mat-menu-item [disabled]="true">Export Health Summary</button>
+    <button mat-menu-item (click)="onEdit()">
+        <span>Edit Pet</span>
+    </button>
+    <button mat-menu-item (click)="onDelete()">
+        <span>Delete Pet</span>
+    </button>
+</mat-menu>
+<app-add-record-menu #addRecordMenu [petId]="pet().id" (triggerRefresh)="triggerRefresh.emit()" />

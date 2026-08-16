@@ -1,0 +1,66 @@
+@use '@angular/material' as mat;
+@use 'theme-colors' as theme;
+@use 'badges';
+
+html {
+  @include mat.theme((color: (primary: theme.$primary-palette,
+        tertiary: theme.$tertiary-palette,
+      ),
+      typography: 'Public Sans',
+      density: 0,
+    ));
+
+  --mat-card-outlined-container-color: white;
+  --category-appointment: #4c86f2;
+  --category-condition: #f2a13e;
+  --category-medication: #9b6bd6;
+  --category-vaccine: #34a976;
+  --category-allergy: #e0555f;
+  --category-notes: var(--mat-sys-outline);
+  --max-content-width: 60rem;
+  --max-sheet-width: 45rem;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Public Sans', sans-serif;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+
+  .mat-mdc-card-actions {
+    margin-left: auto;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 0 1rem 0.5rem;
+    margin-top: auto;
+
+    &:has(.badges) {
+      justify-content: space-between;
+    }
+  }
+
+  .record-tabs {
+    mat-card-header {
+      .mat-mdc-card-header-text {
+        flex: 1 1 0;
+      }
+
+      .mat-mdc-card-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+    }
+  }
+}
+
+.cdk-global-overlay-wrapper:has(mat-bottom-sheet-container):not([style]) {
+  visibility: hidden;
+}

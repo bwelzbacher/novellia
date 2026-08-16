@@ -1,0 +1,242 @@
+@if (record(); as record) {
+<div class="record-detail">
+    <app-breadcrumbs [crumbs]="crumbs()"></app-breadcrumbs>
+    <div class="record-header">
+        <div class="record-header-title">
+            <h1>{{currentLabel(record)}}</h1>
+            <button matIconButton [matMenuTriggerFor]="recordMenu" aria-label="Condition actions">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #recordMenu="matMenu">
+                <button mat-menu-item (click)="onDeleteRecord()">
+                    <span>Delete</span>
+                </button>
+            </mat-menu>
+        </div>
+        <p class="record-header-subtitle">{{record.date | date: 'fullDate'}}</p>
+    </div>
+
+    <mat-card appearance="outlined" class="section-card">
+        <mat-card-header>
+            <mat-card-title>
+                Vet Office
+                <button matButton (click)="onEditVetOffice()" aria-label="Edit vet office">
+                    {{record.vetRecord ? 'Edit' : 'Add'}}
+                </button>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            @if (record.vetRecord; as vetRecord) {
+            <p class="section-primary">{{vetRecord.officeName}}</p>
+            <div class="facts">
+                @if (vetRecord.address) {
+                <div class="fact">
+                    <mat-icon>place</mat-icon>
+                    <span>{{vetRecord.address}}</span>
+                </div>
+                }
+                @if (vetRecord.phoneNumber) {
+                <div class="fact">
+                    <mat-icon>call</mat-icon>
+                    <span>{{vetRecord.phoneNumber}}</span>
+                </div>
+                }
+                @if (vetRecord.hours) {
+                <div class="fact">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{vetRecord.hours}}</span>
+                </div>
+                }
+            </div>
+            } @else {
+            <p class="empty-state">No vet office on file for this visit.</p>
+            }
+        </mat-card-content>
+    </mat-card>
+
+    @if (record.appointment; as appointment) {
+    <mat-card appearance="outlined" class="section-card section-card-appointment">
+        <mat-card-header>
+            <mat-card-title>
+                Appointment
+                <button matButton (click)="onAddOrEditAppointment()" aria-label="Edit appointment">
+                    Edit
+                </button>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="section-primary">{{appointment.reason}}</p>
+            <div class="facts">
+                @if (appointment.vet) {
+                <div class="fact">
+                    <mat-icon>person</mat-icon>
+                    <span>{{appointment.vet}}</span>
+                </div>
+                }
+                <div class="fact">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{appointment.time}}</span>
+                </div>
+                @if (appointment.weightLbs; as weight) {
+                <div class="fact">
+                    <mat-icon>monitor_weight</mat-icon>
+                    <span>{{weight}} lb</span>
+                </div>
+                }
+                @if (appointment.temperatureF; as temperature) {
+                <div class="fact">
+                    <mat-icon>thermostat</mat-icon>
+                    <span>{{temperature}}°F</span>
+                </div>
+                }
+            </div>
+            @if (appointment.condition; as condition) {
+            <a class="related-condition" [routerLink]="['/pets', petId, 'conditions', condition.id]">
+                <mat-icon>medical_information</mat-icon>
+                Related condition: {{condition.name}}
+            </a>
+            }
+        </mat-card-content>
+    </mat-card>
+
+    <section class="record-section">
+        <div class="section-toolbar">
+            <h2>Appointment Notes</h2>
+            <button matButton type="button" (click)="onAddNote()">
+                Add New
+            </button>
+        </div>
+        @if (appointment.notes.length > 0) {
+        <div class="notes-list">
+            @for (note of appointment.notes; track note.id) {
+            <div class="note-row">
+                <p class="section-notes">
+                    <span class="note-type-badge">{{note.type | formatConst}}</span> {{note.text}}
+                </p>
+                <button matButton (click)="onDeleteNote(note.id)">Delete</button>
+            </div>
+            }
+        </div>
+        } @else {
+        <p class="empty-state">No notes have been logged for this visit</p>
+        }
+    </section>
+    } @else {
+    <mat-card appearance="outlined" class="section-card section-card-appointment">
+        <mat-card-header>
+            <mat-card-title>Appointment</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="empty-state">No appointment details have been logged for this visit</p>
+            <button matButton type="button" (click)="onAddOrEditAppointment()">
+                Add New
+            </button>
+        </mat-card-content>
+    </mat-card>
+    }
+
+    <section class="record-section">
+        <div class="section-toolbar">
+            <h2>Medications</h2>
+            <button matButton type="button" (click)="onAddMedication()">
+                Add New
+            </button>
+        </div>
+        @if (record.medicationRecords.length > 0) {
+        <div class="section-grid">
+            @for (medication of record.medicationRecords; track medication.id) {
+            <mat-card appearance="outlined" class="entry-card entry-card-medication">
+                <mat-card-header>
+                    <mat-card-title>{{medication.name}}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="facts">
+                        @if (medication.dosage) {
+                        <div class="fact">
+                            <mat-icon>medication</mat-icon>
+                            <span>{{medication.dosage}}</span>
+                        </div>
+                        }
+                        @if (medication.duration) {
+                        <div class="fact">
+                            <mat-icon>hourglass_empty</mat-icon>
+                            <span>{{medication.duration}}</span>
+                        </div>
+                        }
+                        @if (medication.prescriber) {
+                        <div class="fact">
+                            <mat-icon>person</mat-icon>
+                            <span>{{medication.prescriber}}</span>
+                        </div>
+                        }
+                    </div>
+                    @if (medication.notes) {
+                    <p class="section-notes">{{medication.notes}}</p>
+                    }
+                    @if (medication.condition; as condition) {
+                    <a class="related-condition" [routerLink]="['/pets', petId, 'conditions', condition.id]">
+                        <mat-icon>medical_information</mat-icon>
+                        For: {{condition.name}}
+                    </a>
+                    }
+                </mat-card-content>
+                <mat-card-actions>
+                    <button matButton (click)="onDeleteMedication(medication)">Delete</button>
+                </mat-card-actions>
+            </mat-card>
+            }
+        </div>
+        } @else {
+        <p class="empty-state">No new medications logged for this visit</p>
+        }
+    </section>
+
+    <section class="record-section">
+        <div class="section-toolbar">
+            <h2>Vaccines</h2>
+            <button matButton type="button" (click)="onAddVaccine()">
+                Add New
+            </button>
+        </div>
+        @if (record.vaccineRecords.length > 0) {
+        <div class="section-grid">
+            @for (vaccine of record.vaccineRecords; track vaccine.id) {
+            <mat-card appearance="outlined" class="entry-card entry-card-vaccine">
+                <mat-card-header>
+                    <mat-card-title>{{vaccine.name}}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="facts">
+                        <div class="fact">
+                            <mat-icon>event</mat-icon>
+                            <span>Given {{vaccine.administeredDate | date: 'mediumDate'}}</span>
+                        </div>
+                        @if (vaccine.nextDueDate) {
+                        <div class="fact">
+                            <mat-icon>event_repeat</mat-icon>
+                            <span>Next due {{vaccine.nextDueDate | date: 'mediumDate'}}</span>
+                        </div>
+                        }
+                    </div>
+                    @if (vaccine.notes) {
+                    <p class="section-notes">{{vaccine.notes}}</p>
+                    }
+                </mat-card-content>
+                <mat-card-actions>
+                    <button matButton (click)="onDeleteVaccine(vaccine)">Delete</button>
+                </mat-card-actions>
+            </mat-card>
+            }
+        </div>
+        } @else {
+        <p class="empty-state">No vaccines logged for this visit</p>
+        }
+    </section>
+
+    @if (record.sourceSystem) {
+    <p class="source-system">Source: {{record.sourceSystem}}</p>
+    }
+</div>
+} @else {
+<app-loading></app-loading>
+}

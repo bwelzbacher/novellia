@@ -1,0 +1,21 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.header {
+    height: 6rem;
+    flex-shrink: 0;
+    border-bottom: 1px solid #e5e5e5;
+    background: white;
+
+    img {
+        height: 100%;
+        cursor: pointer;
+    }
+}
+
+router-outlet {
+    display: none;
+}

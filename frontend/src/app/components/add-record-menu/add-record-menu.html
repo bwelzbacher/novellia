@@ -1,0 +1,26 @@
+<mat-menu #addRecordMenu="matMenu">
+    <button mat-menu-item (click)="onUploadDocument()">
+        <mat-icon class="menu-icon menu-icon-upload">upload_file</mat-icon>
+        <span>Extract document</span>
+    </button>
+    <button mat-menu-item (click)="onAddUpcomingAppointment()">
+        <mat-icon class="menu-icon menu-icon-appointment">event</mat-icon>
+        <span>Vet visit</span>
+    </button>
+    <button mat-menu-item (click)="onAddRecord('CONDITION')">
+        <mat-icon class="menu-icon menu-icon-condition">healing</mat-icon>
+        <span>Condition</span>
+    </button>
+    <button mat-menu-item (click)="onAddAllergy()">
+        <mat-icon class="menu-icon menu-icon-allergy">warning</mat-icon>
+        <span>Allergy</span>
+    </button>
+    <button mat-menu-item (click)="onAddRecord('MEDICATION')">
+        <mat-icon class="menu-icon menu-icon-medication">medication</mat-icon>
+        <span>Medication</span>
+    </button>
+    <button mat-menu-item (click)="onAddRecord('VACCINE')">
+        <mat-icon class="menu-icon menu-icon-vaccine">vaccines</mat-icon>
+        <span>Immunization</span>
+    </button>
+</mat-menu>
