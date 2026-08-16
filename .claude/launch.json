@@ -3,10 +3,11 @@
   "configurations": [
     {
       "name": "frontend",
+      "cwd": "${workspaceFolder}/frontend",
       "runtimeExecutable": "/bin/bash",
       "runtimeArgs": [
         "-c",
-        "cd /Users/brennawelzbacher/Projects/novellia/frontend && exec /Users/brennawelzbacher/.nvm/versions/node/v22.23.2/bin/node node_modules/@angular/cli/bin/ng.js serve --port \"$PORT\""
+        "if [ -s \"$HOME/.nvm/nvm.sh\" ]; then . \"$HOME/.nvm/nvm.sh\"; nvm use >/dev/null 2>&1 || true; fi; exec node node_modules/@angular/cli/bin/ng.js serve --port \"$PORT\""
       ],
       "port": 4200,
       "autoPort": true

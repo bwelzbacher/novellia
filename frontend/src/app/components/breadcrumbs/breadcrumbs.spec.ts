@@ -12,6 +12,7 @@ describe('Breadcrumbs', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(Breadcrumbs);
+    fixture.componentRef.setInput('crumbs', []);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -1,7 +1,7 @@
 @let pet = petsSignal();
 @if(pet !== null) {
-<div class="dashboard-grid" [class.no-sidebar]="!pet.length">
-    @if (pet.length) {
+<div class="dashboard-grid" [class.no-sidebar]="!hasAnyPets()">
+    @if (hasAnyPets()) {
     <aside class="sidebar">
         <div class="sidebar-actions">
             <button matButton="filled" class="add-pet-button" (click)="onAddPet()">
@@ -56,24 +56,31 @@
     </ng-template>
     }
 
-    <section class="pet-grid">
+    <section class="pet-grid" (scroll)="onPetGridScroll($event)">
+        @if(filteredPets()?.length; as numberOfResults) {
+        <div class="results-text">Showing {{numberOfResults}} results</div>
+        }
         @for (pet of filteredPets(); track pet.id) {
         <app-pet-card [pet]="pet" [records]="recordsForPet(pet.id)" (deleted)="refresh()"
             (triggerRefresh)="refresh()"></app-pet-card>
         } @empty {
-        <div>
+        <div class="empty-container">
             <img src="empty.png" class="empty-img" />
-            @if (pet.length > 0) {
+            @if (hasAnyPets()) {
             <hgroup>
                 <h3>No pets match the selected filters.</h3>
                 <p>Try adjusting or clearing a filter</p>
             </hgroup>
             } @else {
             <h3>Looks like you haven't added any pets yet. </h3>
-            <button matButton="filled" class="add-pet-button" (click)="onAddPet()"><mat-icon>add</mat-icon>Add
+            <button matButton="filled" (click)="onAddPet()"><mat-icon>add</mat-icon>Add
                 a pet</button>
             }
         </div>
+        }
+        @if (loadingMorePets()) {
+        <mat-progress-spinner mode="indeterminate" diameter="32" strokeWidth="3"
+            class="load-more-spinner"></mat-progress-spinner>
         }
     </section>
 </div>

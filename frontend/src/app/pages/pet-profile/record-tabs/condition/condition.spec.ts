@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Condition } from './condition';
+import { ConditionComponent } from './condition';
 
-describe('Condition', () => {
-  let component: Condition;
-  let fixture: ComponentFixture<Condition>;
+describe('ConditionComponent', () => {
+  let component: ConditionComponent;
+  let fixture: ComponentFixture<ConditionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Condition],
+      imports: [ConditionComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Condition);
+    fixture = TestBed.createComponent(ConditionComponent);
+    fixture.componentRef.setInput('conditions', []);
+    fixture.componentRef.setInput('petId', '1');
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

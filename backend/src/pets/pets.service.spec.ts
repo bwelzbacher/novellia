@@ -60,25 +60,25 @@ describe('PetsService', () => {
       },
       orderBy: { createdAt: 'desc' },
       skip: 0,
-      take: 20,
+      take: 8,
     });
   });
 
-  it('paginates results to 20 per page, defaulting to page 1', async () => {
+  it('paginates results to 8 per page, defaulting to page 1', async () => {
     prisma.pet.findMany.mockResolvedValue([{ id: '1' }]);
     prisma.pet.count.mockResolvedValue(45);
 
     const result = await service.findAll({});
 
     expect(prisma.pet.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ skip: 0, take: 20 }),
+      expect.objectContaining({ skip: 0, take: 8 }),
     );
     expect(result).toEqual({
       data: [{ id: '1' }],
       page: 1,
-      pageSize: 20,
+      pageSize: 8,
       total: 45,
-      totalPages: 3,
+      totalPages: 6,
     });
   });
 
@@ -89,7 +89,7 @@ describe('PetsService', () => {
     await service.findAll({ page: 3 });
 
     expect(prisma.pet.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ skip: 40, take: 20 }),
+      expect.objectContaining({ skip: 16, take: 8 }),
     );
   });
 

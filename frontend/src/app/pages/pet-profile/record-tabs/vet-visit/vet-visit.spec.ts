@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VetVisit } from './vet-visit';
+import { VetVisitComponent } from './vet-visit';
 
-describe('VetVisit', () => {
-  let component: VetVisit;
-  let fixture: ComponentFixture<VetVisit>;
+describe('VetVisitComponent', () => {
+  let component: VetVisitComponent;
+  let fixture: ComponentFixture<VetVisitComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VetVisit],
+      imports: [VetVisitComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VetVisit);
+    fixture = TestBed.createComponent(VetVisitComponent);
+    fixture.componentRef.setInput('petId', '1');
+    fixture.componentRef.setInput('records', []);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

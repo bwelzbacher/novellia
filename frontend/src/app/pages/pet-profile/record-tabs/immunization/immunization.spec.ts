@@ -1,17 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Immunization } from './immunization';
+import { ImmunizationComponent } from './immunization';
 
-describe('Immunization', () => {
-  let component: Immunization;
-  let fixture: ComponentFixture<Immunization>;
+describe('ImmunizationComponent', () => {
+  let component: ImmunizationComponent;
+  let fixture: ComponentFixture<ImmunizationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Immunization],
+      imports: [ImmunizationComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Immunization);
+    fixture = TestBed.createComponent(ImmunizationComponent);
+    fixture.componentRef.setInput('records', []);
+    fixture.componentRef.setInput('petId', '1');
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -6,7 +6,7 @@ import { UpdatePetDto } from './dto/update-pet.dto';
 import { FilterPetsDto } from './dto/filter-pets.dto';
 import type { PetInactiveReason } from './pet.types';
 
-const PETS_PAGE_SIZE = 8;
+const PETS_PAGE_SIZE = 20;
 
 // Every pet gets this condition automatically so routine care (e.g. a
 // heartworm preventative) has somewhere to attach without requiring a real
