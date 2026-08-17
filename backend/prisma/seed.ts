@@ -97,6 +97,12 @@ interface MedicalRecordSeed {
   appointment?: AppointmentSeed;
   vaccineRecords?: VaccineSeed[];
   medicationRecords?: MedicationSeed[];
+  // Overrides the record's updatedAt (normally defaulted to "now" at seed
+  // time). The missing-details badge (hasMissingAppointmentDetails) looks
+  // for updatedAt < appointment date < now — i.e. a past visit nobody has
+  // logged an outcome for since — so demoing that badge requires setting
+  // this explicitly to before `date`.
+  updatedAt?: string;
 }
 
 interface AllergySeed {
@@ -439,6 +445,9 @@ const HERO_PETS: PetSeed[] = [
     records: [
       {
         date: daysFromToday(-5),
+        // Logged when the visit was booked, then never updated with an
+        // outcome — what makes this trigger the missing-details badge.
+        updatedAt: daysFromToday(-10),
         vetKey: 'maple-street',
         appointment: {
           time: '13:00',
@@ -894,6 +903,7 @@ async function main() {
           vetRecordId,
           date: new Date(record.date),
           sourceSystem: record.sourceSystem,
+          updatedAt: record.updatedAt ? new Date(record.updatedAt) : undefined,
           appointment: record.appointment
             ? {
                 create: {

@@ -1,24 +1,24 @@
 <div class="record-section">
     <div class="record-grid">
-        @for (group of vaccineGroups(); track group.name) {
+        @for (vaccine of groupedVaccines() | keyvalue; track vaccine.key) {
         <mat-card appearance="outlined" class="record-card record-card__vaccine">
             <mat-card-header>
                 <mat-card-title>
-                    {{group.name}}
+                    {{vaccine.key}}
                 </mat-card-title>
-                <mat-card-subtitle>Last given {{group.doses[0].vaccine.administeredDate | date:
+                <mat-card-subtitle>Last given {{vaccine.value[0].administeredDate | date:
                     'mediumDate'}}</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
                 <p class="record-meta">
-                    {{group.doses[0].record.vetRecord?.officeName}}
-                    @if (group.doses[0].vaccine.nextDueDate) {
-                    · Next due {{group.doses[0].vaccine.nextDueDate | date: 'mediumDate'}}
+                    {{vaccine.value[0].officeName}}
+                    @if (vaccine.value[0].nextDueDate) {
+                    · Next due {{vaccine.value[0].nextDueDate | date: 'mediumDate'}}
                     }
                 </p>
             </mat-card-content>
             <mat-card-actions>
-                <button matButton [routerLink]="['/pets', petId(), 'vaccines', group.name]">View record
+                <button matButton [routerLink]="['/pets', petId(), 'vaccines', vaccine.key]">View record
                     <mat-icon iconPositionEnd>arrow_forward</mat-icon></button>
             </mat-card-actions>
         </mat-card>

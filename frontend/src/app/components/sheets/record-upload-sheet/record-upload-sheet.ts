@@ -106,7 +106,7 @@ export class RecordUploadSheet {
     newVetOfficeName: [''],
     newVetAddress: [''],
     newVetPhoneNumber: [''],
-    date: ['', [Validators.required, dateNotInFuture]],
+    date: ['', [Validators.required]],
     appointmentTime: [''],
     appointmentVet: [''],
     appointmentReason: [''],
