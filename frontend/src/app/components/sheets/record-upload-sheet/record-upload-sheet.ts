@@ -23,7 +23,7 @@ import { ConditionsService } from '../../../services/conditions.service';
 import { MedicalRecordsService } from '../../../services/medical-records.service';
 import { RecordExtractionService } from '../../../services/record-extraction.service';
 import { VetRecordsService } from '../../../services/vet-records.service';
-import { dateNotInFuture, dateNotInPast } from '../../../utils/date-validators';
+import { dateNotInPast } from '../../../utils/date-validators';
 
 export interface RecordUploadSheetData {
   petId: string;

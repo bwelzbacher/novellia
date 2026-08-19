@@ -20,10 +20,11 @@ services:
     build:
       context: ./backend
     restart: unless-stopped
+    env_file:
+      - ./backend/.env
     environment:
       DATABASE_URL: postgresql://novellia:novellia@db:5432/novellia?schema=public
       PORT: 3000
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     ports:
       - '3000:3000'
     volumes:
@@ -32,17 +33,17 @@ services:
       db:
         condition: service_healthy
 
-  # Commented out for local dev with live reload — run it yourself instead:
-  #   cd frontend && npm start   (requires Node 22+)
+  # Comment out for local dev with live reload — run it yourself instead:
+  #  cd frontend && npm start   (requires Node 22+)
   # Uncomment to include it in `make up` / docker compose again.
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   restart: unless-stopped
-  #   ports:
-  #     - '4200:80'
-  #   depends_on:
-  #     - backend
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    ports:
+      - '4200:80'
+    depends_on:
+      - backend
 
 volumes:
   db-data:

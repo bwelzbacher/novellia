@@ -27,7 +27,7 @@ import { FormatConstPipe } from '../../../pipes/format-const.pipe';
 import { ConditionsService } from '../../../services/conditions.service';
 import { MedicalRecordsService } from '../../../services/medical-records.service';
 import { VetRecordsService } from '../../../services/vet-records.service';
-import { dateNotInFuture, dateNotInPast } from '../../../utils/date-validators';
+import { dateNotInPast } from '../../../utils/date-validators';
 
 export interface MedicalRecordFormSheetData {
   petId: string;
@@ -92,7 +92,7 @@ export class MedicalRecordFormSheet {
     vetRecordId: [''],
     date: [
       this.data.date ?? new Date().toISOString().substring(0, 10),
-      [Validators.required, dateNotInFuture],
+      Validators.required,
     ],
     newVetOfficeName: [''],
     newVetAddress: [''],
@@ -125,7 +125,6 @@ export class MedicalRecordFormSheet {
 
   constructor() {
     if (this.kind === 'APPOINTMENT') {
-      this.form.controls.appointmentTime.addValidators(Validators.required);
       this.form.controls.appointmentReason.addValidators(Validators.required);
     } else if (this.kind === 'VACCINE') {
       this.form.controls.vaccineName.addValidators(Validators.required);

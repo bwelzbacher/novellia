@@ -1,8 +1,10 @@
 # Novellia — Pet Medical Records
 
-An app for managing pet medical records: add/view/edit/delete pets and
-their medical records, with filtering support. Backend is NestJS +
-PostgreSQL + Prisma; frontend is Angular + Angular Material.
+An app for managing pet medical records: pets, vet visits (appointments,
+vaccines, prescriptions), standalone conditions and allergies, and
+AI-assisted extraction of new records from an uploaded document (a paper
+or emailed vet summary). Backend is NestJS + PostgreSQL + Prisma; frontend
+is Angular (signals, standalone components) + Angular Material.
 
 ## Quick start
 
@@ -17,6 +19,11 @@ and starts:
 
 - Frontend: `http://localhost:4200`
 - Backend API: `http://localhost:3000`
+
+The document-extraction feature calls the Claude API and needs a key.
+Copy `backend/.env.example` to `backend/.env` and set `ANTHROPIC_API_KEY`
+before running `make up` — Compose reads it from that file directly.
+Everything else works without it.
 
 Optionally load some sample data:
 
@@ -57,37 +64,72 @@ npm start   # http://localhost:4200
 ## Project layout
 
 ```
-backend/                 NestJS API
-  prisma/schema.prisma    Data model (source of truth)
-  prisma/migrations/       SQL migrations
-  prisma/seed.ts            Sample data
-  src/pets/                  Pet CRUD + filtering
-  src/medical-records/        Medical record CRUD + filtering
-  src/prisma/                  PrismaService wrapper
-frontend/                Angular + Material app
-  src/app/app.routes.ts    Routes: '' -> dashboard, 'pets/:id' -> pet-profile
-  src/app/pages/            Dashboard, PetProfile
-docker-compose.yml       Postgres + backend + frontend
-Makefile                 Local dev commands
+backend/                      NestJS API
+  prisma/schema.prisma          Data model (source of truth)
+  prisma/migrations/             SQL migrations
+  prisma/seed.ts                   Sample data generator
+  src/pets/                          Pet CRUD + pagination/filtering
+  src/medical-records/                 Visit CRUD (appointment/vaccine/medication)
+  src/conditions/                        Condition CRUD
+  src/allergies/                           Allergy CRUD
+  src/vet-records/                           Vet office CRUD
+  src/record-extraction/                       Claude-based document extraction
+  src/prisma/                                    PrismaService wrapper
+frontend/                     Angular + Material app
+  src/app/pages/                 Dashboard, PetProfile (+ record-tabs/ for
+                                    each medical-data tab), RecordDetail,
+                                    ConditionDetail, VaccineDetail
+  src/app/pages/**/*.store.ts      Component-scoped signal stores — each
+                                      page owns its data fetch + mutations
+  src/app/components/sheets/         Bottom sheets for every create/edit form
+  src/app/services/                    Thin HTTP clients, one per resource
+docker-compose.yml            Postgres + backend + frontend
+Makefile                      Local dev commands
 ```
 
 ## Data model
 
-**Pet** — `name`, `species`, `breed`, `dateOfBirth`, `sex`, `weightKg`,
-`microchipId`, `ownerName`, `ownerEmail`, `ownerPhone`.
+A pet's medical history is modeled as a set of **visits**
+(`MedicalRecord`), each optionally attaching one appointment plus any
+number of vaccines and medications — a visit doesn't have to be all three.
+`Condition` and `Allergy` are standalone, pet-level entities rather than
+owned by a single visit, since a chronic condition is meant to be tracked
+across many visits over time; appointments and medications reference a
+condition optionally instead of containing one.
 
-**MedicalRecord** — belongs to a `Pet` (cascade delete), `recordType`
-(vaccination, condition, lab result, prescription, procedure, allergy,
-wellness exam, note), `title`, `visitDate`, `providerName`, `clinicName`,
-`sourceSystem`, `description`.
+- **Pet** — `name`, `species`, `breed`, `dateOfBirth`, `sex`, `weightLbs`,
+  `microchipId`, `ownerName`/`ownerEmail`/`ownerPhone`, `isActive` (soft
+  deactivation, not a delete — see below).
+- **VetRecord** — a clinic. Reusable across many visits and pets.
+- **MedicalRecord** — a visit. `vetRecordId` is optional (an OTC
+  medication doesn't require a clinic visit), `date`, `sourceSystem`.
+- **AppointmentRecord** — at most one per visit. `time`, `vet` (name,
+  optional — some visits aren't tied to a specific vet), `reason`,
+  `weightLbs`/`temperatureF`, an optional `conditionId`, and any number of
+  typed `AppointmentNote` rows (staff / discharge / personal / care plan /
+  other).
+- **VaccineRecord** / **MedicationRecord** — belong to a visit, not
+  necessarily its appointment. A medication also carries its own `status`
+  (active/completed/discontinued) independent of any linked condition's
+  status — a medication can be discontinued without the condition itself
+  being resolved.
+- **Condition** / **Allergy** — belong to a pet directly.
 
-`species`, `sex`, and `recordType` are plain string columns, not database
-enums — constrained instead by TypeScript union types
-([pet.types.ts](backend/src/pets/pet.types.ts),
-[medical-record.types.ts](backend/src/medical-records/medical-record.types.ts))
-enforced at the API boundary via `class-validator`. This keeps the
-controlled vocabulary extensible without a migration — useful for a system
-meant to normalize records arriving from many different upstream sources.
+`species`, `sex`, condition `status`, medication `status`, allergy
+`severity`, and appointment-note `type` are plain string columns, not
+database enums — constrained instead by TypeScript union types under
+`backend/src/*/*.types.ts`, enforced at the API boundary via
+`class-validator`. This keeps the controlled vocabulary extensible without
+a migration.
+
+**Deletes are soft** across every child table (`deleted: boolean`, hidden
+from reads, never removed) — deleting a visit cascades to the
+vaccines/medications/notes it exclusively owns, but deleting a condition
+only unlinks the appointments/medications that reference it, since those
+records aren't owned by it. `Pet` uses `isActive`/`inactiveReason` instead
+of a `deleted` flag for the same soft-delete purpose. The foreign keys
+underneath do support a real hard-delete cascade from `Pet` down through
+everything, it's just not an exposed action in the app today.
 
 ## API
 
@@ -98,20 +140,42 @@ All endpoints are prefixed at the root (`http://localhost:3000`).
 | Method | Path | Notes |
 |---|---|---|
 | `POST` | `/pets` | Create a pet |
-| `GET` | `/pets` | List pets. Query params: `species`, `name` (partial, case-insensitive) |
+| `GET` | `/pets` | Paginated list. Query params: `species`, `name` (partial, case-insensitive), `page` |
 | `GET` | `/pets/:id` | Get one pet |
 | `PATCH` | `/pets/:id` | Partial update |
-| `DELETE` | `/pets/:id` | Delete (cascades to its medical records) |
+| `DELETE` | `/pets/:id` | Deactivate (`isActive: false`) — not a delete |
+| `POST` | `/pets/:id/photo` | Upload a profile photo (multipart, field `photo`) |
 
-### Medical records
+### Medical records (visits)
 
 | Method | Path | Notes |
 |---|---|---|
-| `POST` | `/medical-records` | Create a record (`petId` must reference an existing pet) |
-| `GET` | `/medical-records` | List records. Query params: `petId`, `recordType`, `visitDateFrom`, `visitDateTo`, `search` (matches `title`/`description`) |
-| `GET` | `/medical-records/:id` | Get one record |
-| `PATCH` | `/medical-records/:id` | Partial update |
-| `DELETE` | `/medical-records/:id` | Delete |
+| `POST` | `/medical-records` | Create a visit — `petId` required; `appointment`, `vaccineRecords`, `medicationRecords` all optional |
+| `GET` | `/medical-records` | List. Query params: `petId`, `vetRecordId`, `dateFrom`, `dateTo`, `search` (matches vaccine/medication names and appointment reason) |
+| `GET` | `/medical-records/:id` | Get one visit, with its appointment/vaccines/medications |
+| `PATCH` | `/medical-records/:id` | Partial update; `vaccineRecords`/`medicationRecords` replace the existing set when provided |
+| `DELETE` | `/medical-records/:id` | Soft-deletes the visit and cascades to its vaccines/medications/notes |
+| `DELETE` | `/medical-records/vaccines/:id` | Soft-delete one vaccine |
+| `DELETE` | `/medical-records/medications/:id` | Soft-delete one medication |
+| `DELETE` | `/medical-records/notes/:id` | Soft-delete one appointment note |
+| `PATCH` | `/medical-records/appointments/:id/set-condition` | Link an appointment to a condition |
+| `PATCH` | `/medical-records/appointments/:id/remove-condition` | Unlink |
+| `PATCH` | `/medical-records/medications/:id/set-condition` | Link a medication to a condition |
+| `PATCH` | `/medical-records/medications/:id/remove-condition` | Unlink |
+
+### Conditions / Allergies / Vet records
+
+Same CRUD shape for all three — `POST`, `GET` (list, filtered), `GET /:id`,
+`PATCH /:id`, `DELETE /:id` (soft-delete for conditions/allergies, hard
+delete for vet records, which have no soft-delete flag). List filters:
+conditions take `petId`/`status`/`search`; allergies take
+`petId`/`severity`/`search`; vet records take `officeName`.
+
+### Record extraction
+
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/record-extraction?petId=...` | Multipart upload, field `document` (PNG/JPEG/WEBP/GIF/PDF, max 10MB). Returns a draft record for the client to review/edit — doesn't persist anything itself. The client submits the reviewed draft through the normal `POST /medical-records` / `POST /conditions` endpoints. |
 
 Example:
 
@@ -120,7 +184,7 @@ curl -X POST http://localhost:3000/pets \
   -H 'Content-Type: application/json' \
   -d '{"name":"Rex","species":"DOG","sex":"MALE","ownerName":"Jamie Chen"}'
 
-curl "http://localhost:3000/medical-records?recordType=VACCINATION&search=rabies"
+curl "http://localhost:3000/medical-records?search=rabies"
 ```
 
 ## Testing
@@ -129,10 +193,11 @@ curl "http://localhost:3000/medical-records?recordType=VACCINATION&search=rabies
 make test
 ```
 
-Runs the Jest unit test suite against `PetsService` and
-`MedicalRecordsService` with a mocked Prisma client — no database required.
-End-to-end tests (`npm run test:e2e` inside `backend/`) exercise the real
-HTTP layer and expect a running Postgres (`make up` first).
+Runs the Jest unit test suite (`PetsService`, `MedicalRecordsService`,
+`ConditionsService`, `AllergiesService`, `VetRecordsService`,
+`RecordExtractionService`) with a mocked Prisma client — no database
+required. End-to-end tests (`npm run test:e2e` inside `backend/`) exercise
+the real HTTP layer and expect a running Postgres (`make up` first).
 
 ```bash
 make test-frontend
@@ -142,12 +207,23 @@ Runs the Angular unit tests (Vitest). Requires Node 22+.
 
 ## Design notes / things I'd revisit with more time
 
-- **No auth** — out of scope for now; would add JWT-based auth scoped per
-  clinic/owner before this went anywhere near real data.
-- **Owner is inline on `Pet`**, not a separate normalized entity — kept
-  scope to the two resources described (pet record, medical record). Worth
-  splitting out if owners need their own lifecycle (e.g. one owner with
-  multiple pets, contact history).
-- **`sourceSystem` on `MedicalRecord`** is a free-text field standing in for
-  the "integrates with many upstream systems" premise, without building
-  real integrations.
+- **No auth** — `ownerName`/`ownerEmail`/`ownerPhone` are plain fields on
+  `Pet`, not a real account. Under real auth I'd expect a pet to belong to
+  an authorized user, with permissions following from that relationship.
+- **Dashboard status (missing visit details, upcoming/overdue vaccines and
+  appointments)** is computed client-side today by scanning every fetched
+  record. That belongs server-side, returned as part of the pet record
+  itself, both for correctness at volume and so every client gets it for
+  free.
+- **Notes aren't a real table** — the Notes view is a client-side
+  aggregation of typed appointment notes plus free-text fields on
+  vaccines/medications/conditions. A single `Note` model, foreign-keyed to
+  whatever record it belongs to, would replace that merge.
+- **Pet weight lives in two places** — a static field on `Pet` and a
+  per-appointment reading on `AppointmentRecord` — with nothing keeping
+  them in sync. Needs one source of truth while still allowing a manual
+  entry outside of a visit.
+- **Angular Material** covers every form, sheet, and menu in the frontend,
+  which is most of why the bundle sits well over Angular's default 500KB
+  budget — a deliberate trade of bundle size for not hand-building UI
+  primitives, worth revisiting if load time on slow connections mattered.

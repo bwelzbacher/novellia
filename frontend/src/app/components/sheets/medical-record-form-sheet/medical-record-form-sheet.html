@@ -50,8 +50,6 @@
             <input matInput type="date" formControlName="date" />
             @if (form.controls.date.hasError('required')) {
             <mat-error>Date is required</mat-error>
-            } @else if (form.controls.date.hasError('dateInFuture')) {
-            <mat-error>Date can't be in the future</mat-error>
             }
         </mat-form-field>
         }
