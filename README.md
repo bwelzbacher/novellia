@@ -2,9 +2,33 @@
 
 An app for managing pet medical records: pets, vet visits (appointments,
 vaccines, prescriptions), standalone conditions and allergies, and
-AI-assisted extraction of new records from an uploaded document (a paper
-or emailed vet summary). Backend is NestJS + PostgreSQL + Prisma; frontend
-is Angular (signals, standalone components) + Angular Material.
+AI-assisted extraction of new records from an uploaded document. Backend is NestJS + PostgreSQL + Prisma; frontend
+is Angular + Angular Material.
+
+## Tools & AI assistance
+
+Built with **Claude Code** as my primary AI pair for most of this —
+architecture and data model decisions, the NestJS/Angular implementation,
+refactors, tests, seed data, and this README were all done in
+collaboration with it rather than solo. I reviewed and directed every
+change; "I typed every line myself" wouldn't be honest, and neither would
+"an AI built this unsupervised" — it was closer to pairing with a fast
+collaborator who still needed direction, correction, and a second look at
+every decision, especially around the data model.
+
+The rest of the stack, briefly:
+
+- **NestJS + Prisma + PostgreSQL** for the backend — my default for a
+  typed API over a relational schema. Prisma's migration workflow made the
+  data model's many rounds of iteration far less error-prone than
+  hand-written SQL would have been.
+- **Angular + Angular Material** for the frontend — this is what I know
+  best after 8 years mostly in frontend, and Material meant not having to
+  hand-build a date picker, a bottom sheet, or an accessible dropdown. The
+  cost is bundle size, noted below.
+- **Anthropic's Claude API** — The document-extraction flow vet summary, review a draft, save calls Claude directly to parse the document.
+- **Docker Compose** for local dev parity between Postgres and the two
+  services.
 
 ## Quick start
 
